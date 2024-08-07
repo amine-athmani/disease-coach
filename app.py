@@ -4,9 +4,8 @@ from dotenv import load_dotenv
 import os
 
 AI71_BASE_URL = "https://api.ai71.ai/v1/"
-load_dotenv()
-AI71_API_KEY = os.getenv("AI71_API_KEY")
-
+#load_dotenv()
+AI71_API_KEY = st.secrets["AI71_API_KEY"] #os.getenv("AI71_API_KEY")
 
 # Define the color scheme
 primary_color = "#022b29"
@@ -45,7 +44,7 @@ def show_input_form():
         col4, col5 = st.columns(2)
         with col4:
             sex = st.selectbox('Sex', ['Male', 'Female'], index=0)
-            disease = st.selectbox('Disease', ['Type 1 diabetes', 'Type 2 diabetes', 'Gestational'], index=0)
+            disease = st.selectbox('Disease', ['Diabetes', 'Asthma', 'Heart Disease'], index=0)
         with col5:
             activity_level = st.selectbox('Activity level', ["No exercise", "Light", "Moderate", "High", "Extreme"], index=2)
             diet = st.selectbox('Diet', ['Anything', 'Vegetarian', 'Vegan', 'Pescatarian'], index=0)
