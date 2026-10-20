@@ -3,7 +3,8 @@ import openai
 from dotenv import load_dotenv
 import os
 
-AI71_BASE_URL = "https://api.ai71.ai/v1/"
+AI71_BASE_URL = st.secrets.get("AI71_BASE_URL", "https://api.ai71.ai/v1/")
+MODEL = st.secrets.get("MODEL", "tiiuae/falcon-180b-chat")
 #load_dotenv()
 AI71_API_KEY = st.secrets["AI71_API_KEY"] #os.getenv("AI71_API_KEY")
 
@@ -92,7 +93,8 @@ def chatbot():
     user_input = st.session_state.user_input
     disease = user_input["disease"]
     st.title(f"💬 Your {disease} Assistant")
-    st.caption("🚀 A chatbot powered by Falcon LLM")
+    st.caption("🚀 A chatbot powered by Falcon LLM. General information only, not medical advice.")
+    st.button("Edit my information", on_click=back_input)
 
     client = openai.OpenAI(
         api_key=AI71_API_KEY,
@@ -100,8 +102,15 @@ def chatbot():
     )
     
     if "messages" not in st.session_state:
-        st.session_state["messages"] = [{"role": "system", "content": f"You are an expert assistant specializing in {disease}. Provide tips, advice, and answer questions specifically related to {disease}."}]
-        st.session_state["messages"] = [{"role": "assistant", "content": f"Hello! I am your assistant specialized in {disease}. How can I assist you today?"}]
+        profile = (f"The user is a {user_input['age']}-year-old {user_input['sex'].lower()}, "
+                   f"{user_input['height']} cm, {user_input['weight']} kg, activity level: {user_input['activity_level']}. "
+                   f"Diet: {user_input['diet']}. Preferred cuisine: {', '.join(user_input['food_pref']) or 'none'}. "
+                   f"Allergies: {', '.join(user_input['allergies']) or 'none'}.")
+        st.session_state["messages"] = [
+            {"role": "system", "content": f"You are an expert assistant specializing in {disease}. Provide tips, advice, and answer questions specifically related to {disease}. "
+                                          f"{profile} Tailor your answers to this profile. You do not replace a doctor: tell the user to see one for diagnosis, medication or urgent symptoms."},
+            {"role": "assistant", "content": f"Hello! I am your assistant specialized in {disease}. How can I assist you today?"},
+        ]
     
     for msg in st.session_state.messages:
         if msg["role"] != "system":
@@ -111,7 +120,7 @@ def chatbot():
         st.session_state.messages.append({"role": "user", "content": prompt})
         st.chat_message("user").write(prompt)
         
-        response = client.chat.completions.create(model="tiiuae/falcon-180b-chat",
+        response = client.chat.completions.create(model=MODEL,
                                                   messages=st.session_state.messages)
         msg = response.choices[0].message.content
         st.session_state.messages.append({"role": "assistant", "content": msg})

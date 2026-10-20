@@ -1,70 +1,45 @@
+# Disease Coach
 
-# DAIT Assistant
+A chat assistant for people living with a chronic disease (diabetes, asthma or heart disease). The user fills in a short profile (age, height, weight, sex, activity level, diet, preferred cuisine, allergies), then asks questions. The profile goes into the system prompt, so answers take the user's diet and allergies into account.
 
-## Overview
-DAIT Assistant is an AI-powered chatbot designed to assist patients with chronic diseases by providing personalized advice and answering questions about their condition. The assistant is built using Streamlit and leverages the Falcon LLM for natural language processing.
+Built in August 2024 as a follow-up to DAIT, our LEAP 2024 hackathon assistant that plans meals and exercise for diabetics. The model is Falcon 180B chat, called through the AI71 API with the OpenAI Python client.
 
-## Features
-- Collects user information including age, height, weight, sex, disease, activity level, diet, food preferences, and allergies.
-- Provides personalized assistance based on the user's chronic disease.
-- Suggests relevant questions that the user can ask.
-- Dynamically generates new suggested questions after each interaction.
+The assistant gives general information only. It is not medical advice and it tells users to see a doctor for diagnosis, medication or urgent symptoms.
 
-## Requirements
-- Python 3.7+
-- Streamlit
-- OpenAI API key
+## What is in the repo
 
-## Installation
-1. Clone the repository:
-   \`\`\`bash
-   git clone https://github.com/yourusername/dait-assistant.git
-   cd dait-assistant
-   \`\`\`
+- `app.py`: Streamlit app with the profile form and the chat.
+- `telegram/server.py`: the same assistant as a Telegram bot, set up for Type 1 diabetes.
+- `falcon_test.py`: a minimal call to the API, plain and streaming.
 
-2. Create a virtual environment and activate it:
-   \`\`\`bash
-   python3 -m venv venv
-   source venv/bin/activate   # On Windows use \`venv\Scripts\activate\`
-   \`\`\`
+## Run it
 
-3. Install the required packages:
-   \`\`\`bash
-   pip install -r requirements.txt
-   \`\`\`
+Python 3.9 or later.
 
-4. Create a \`.env\` file in the root directory and add your OpenAI API key:
-   \`\`\`
-   AI71_API_KEY=your_openai_api_key
-   \`\`\`
+```bash
+git clone https://github.com/amine-athmani/disease-coach.git
+cd disease-coach
+python3 -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+```
 
-## Usage
-1. Run the Streamlit app:
-   \`\`\`bash
-   streamlit run app.py
-   \`\`\`
+Streamlit app: put your key in `.streamlit/secrets.toml`, then start it.
 
-2. Open your web browser and navigate to \`http://localhost:8501\`.
+```toml
+AI71_API_KEY = "your-key"
+# Optional: any OpenAI-compatible endpoint and model
+# AI71_BASE_URL = "https://api.ai71.ai/v1/"
+# MODEL = "tiiuae/falcon-180b-chat"
+```
 
-3. Fill in the required information on the input form and submit.
+```bash
+streamlit run app.py
+```
 
-4. Interact with the chatbot by typing your questions or selecting from the suggested questions.
+Telegram bot: put `AI71_API_KEY` and `TELEGRAM_TOKEN` in a `.env` file (optionally `AI71_BASE_URL` and `MODEL`), then run `python telegram/server.py`.
 
-## Project Structure
-- \`app.py\`: Main application file containing the Streamlit code.
-- \`requirements.txt\`: List of dependencies required for the project.
-- \`.env\`: Environment file containing sensitive information like API keys.
-
-## Example
-Here's an example of how the chatbot can be used:
-1. User fills in their information on the input form.
-2. The chatbot greets the user and presents itself as an expert in their disease.
-3. The chatbot suggests three relevant questions that the user can ask.
-4. User clicks on one of the suggested questions or types their own question.
-5. The chatbot responds with personalized advice and suggests new questions.
-
-## Contributing
-Contributions are welcome! Please open an issue or submit a pull request for any improvements or bug fixes.
+Both entry points read the base URL and model name from configuration, so you can point them at another OpenAI-compatible provider if the AI71 endpoint is not available to you.
 
 ## License
-This project is licensed under the MIT License.
+
+MIT

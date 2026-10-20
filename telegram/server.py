@@ -11,9 +11,11 @@ from dotenv import load_dotenv
 load_dotenv()
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 AI71_API_KEY = os.getenv("AI71_API_KEY")
+AI71_BASE_URL = os.getenv("AI71_BASE_URL", "https://api.ai71.ai/v1/")
+MODEL = os.getenv("MODEL", "tiiuae/falcon-180b-chat")
 
 # Set up OpenAI client
-client = openai.OpenAI(api_key=AI71_API_KEY, base_url="https://api.ai71.ai/v1/")
+client = openai.OpenAI(api_key=AI71_API_KEY, base_url=AI71_BASE_URL)
 
 # Enable logging
 logging.basicConfig(
@@ -27,7 +29,7 @@ CHOOSING, TYPING_REPLY = range(2)
 # Define the start command handler
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     await update.message.reply_text(
-        'Hello! I am your assistant specialized in Types 1 diabetes. How can I assist you today?'
+        'Hello! I am your assistant specialized in Type 1 diabetes. How can I assist you today?'
     )
     return CHOOSING
 
@@ -35,11 +37,11 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     user_input = update.message.text
     messages = [
-        {"role": "assistant", "content": "You are an expert assistant specializing in Type 1 diabetes. Provide tips, advice, and answer questions specifically related to Type 1 diabetes."},
+        {"role": "system", "content": "You are an expert assistant specializing in Type 1 diabetes. Provide tips, advice, and answer questions specifically related to Type 1 diabetes. You do not replace a doctor: tell the user to see one for diagnosis, medication or urgent symptoms."},
         {"role": "user", "content": user_input}
     ]
 
-    response = client.chat.completions.create(model="tiiuae/falcon-180b-chat", messages=messages)
+    response = client.chat.completions.create(model=MODEL, messages=messages)
     bot_response = response.choices[0].message.content
     await update.message.reply_text(bot_response)
 
